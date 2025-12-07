@@ -1,0 +1,117 @@
+import pandas as pd
+import os
+
+FILE_NAME = "pengeluaran.csv"
+
+# -------------------------------------------------------
+# 1. CEK FILE — jika tidak ada → buat file baru
+# -------------------------------------------------------
+def prepare_csv():
+    if not os.path.exists(FILE_NAME):
+        df = pd.DataFrame(columns=["ID", "Tanggal", "Kategori", "Jumlah", "Catatan"])
+        df.to_csv(FILE_NAME, index=False)
+        print("CSV baru dibuat:", FILE_NAME)
+
+
+# -------------------------------------------------------
+# 2. BACA CSV
+# -------------------------------------------------------
+def load_data():
+    return pd.read_csv(FILE_NAME)
+
+
+# -------------------------------------------------------
+# 3. SIMPAN CSV
+# -------------------------------------------------------
+def save_data(df):
+    df.to_csv(FILE_NAME, index=False)
+
+
+# -------------------------------------------------------
+# 4. TAMBAH DATA
+# -------------------------------------------------------
+def add_data():
+    df = load_data()
+
+    print("\n--- Tambah Pengeluaran ---")
+    tanggal = input("Tanggal (YYYY-MM-DD): ")
+    kategori = input("Kategori (makan/transport/hiburan/dll): ")
+    jumlah = float(input("Jumlah (Rp): "))
+    catatan = input("Catatan (opsional): ")
+
+    # ID otomatis
+    new_id = 1 if df.empty else df["ID"].max() + 1
+
+    df.loc[len(df)] = [new_id, tanggal, kategori, jumlah, catatan]
+    save_data(df)
+    print("✔ Data berhasil ditambahkan!\n")
+
+
+# -------------------------------------------------------
+# 5. LIHAT DATA
+# -------------------------------------------------------
+def view_data():
+    df = load_data()
+    print("\n--- Daftar Pengeluaran ---")
+    if df.empty:
+        print("Belum ada data.")
+    else:
+        print(df.to_string(index=False))
+    print()
+
+
+# -------------------------------------------------------
+# 6. HAPUS DATA
+# -------------------------------------------------------
+def delete_data():
+    df = load_data()
+    view_data()
+
+    if df.empty:
+        return
+
+    try:
+        id_hapus = int(input("Masukkan ID data yang ingin dihapus: "))
+    except:
+        print("ID tidak valid!\n")
+        return
+
+    if id_hapus not in df["ID"].values:
+        print("ID tidak ditemukan!\n")
+        return
+
+    df = df[df["ID"] != id_hapus]
+    save_data(df)
+    print("✔ Data berhasil dihapus!\n")
+
+
+# -------------------------------------------------------
+# 7. MENU UTAMA — TANPA EDIT DATA
+# -------------------------------------------------------
+def main():
+    prepare_csv()
+
+    while True:
+        print("======= PELACAK PENGELUARAN =======")
+        print("1. Tambah data")
+        print("2. Lihat data")
+        print("3. Hapus data")
+        print("4. Keluar")
+
+        pilihan = input("Pilih menu: ")
+
+        if pilihan == "1":
+            add_data()
+        elif pilihan == "2":
+            view_data()
+        elif pilihan == "3":
+            delete_data()
+        elif pilihan == "4":
+            print("Program selesai.")
+            break
+        else:
+            print("Pilihan tidak valid!\n")
+
+
+if __name__ == "__main__":
+    main()
